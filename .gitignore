@@ -1,0 +1,13 @@
+# Build and compiled classes
+/build/
+bin/
+target/
+*.war
+*.class
+
+# Log files
+*.log
+
+# OS generated files
+Thumbs.db
+.DS_Store
