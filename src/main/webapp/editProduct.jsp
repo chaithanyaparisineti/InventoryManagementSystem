@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
 <%@ page import="com.inventory.model.Product" %>
+<%@ page import="com.inventory.model.Supplier" %>
 
 <%
     if (session == null || session.getAttribute("admin") == null) {
@@ -9,6 +11,7 @@
     }
 
     Product product = (Product) request.getAttribute("product");
+    List<Supplier> suppliers = (List<Supplier>) request.getAttribute("suppliers");
 
     if (product == null) {
         response.sendRedirect("products");
@@ -218,9 +221,22 @@
             </div>
 
             <div class="form-group">
-                <label for="supplierId">Supplier ID</label>
-                <input type="number" id="supplierId" name="supplierId" class="form-control"
-                       value="<%= product.getSupplierId() %>" min="1" required>
+                <label for="supplierId">Assigned Supplier</label>
+                <select id="supplierId" name="supplierId" class="form-control" required>
+                    <option value="">-- Choose Supplier --</option>
+                    <%
+                        if (suppliers != null) {
+                            for (Supplier s : suppliers) {
+                                boolean isSelected = (s.getId() == product.getSupplierId());
+                    %>
+                    <option value="<%= s.getId() %>" <%= isSelected ? "selected" : "" %>>
+                        <%= s.getName() %> (ID: #<%= s.getId() %>)
+                    </option>
+                    <%
+                            }
+                        }
+                    %>
+                </select>
             </div>
 
             <div class="actions-footer">

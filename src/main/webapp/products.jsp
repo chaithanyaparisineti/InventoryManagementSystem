@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="com.inventory.model.Product" %>
+<%@ page import="com.inventory.model.Supplier" %>
 
 <%
     if (session == null || session.getAttribute("admin") == null) {
@@ -10,6 +11,7 @@
     }
 
     List<Product> products = (List<Product>) request.getAttribute("products");
+    List<Supplier> suppliers = (List<Supplier>) request.getAttribute("suppliers");
 
     int totalProducts = 0;
     int totalUnits = 0;
@@ -60,7 +62,6 @@
         --text-muted: #64748b;
         --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
         --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
         --radius: 12px;
     }
 
@@ -83,7 +84,6 @@
         margin: 0 auto;
     }
 
-    /* Top Navigation Header */
     .top-header {
         display: flex;
         justify-content: space-between;
@@ -132,7 +132,6 @@
         transform: translateY(-1px);
     }
 
-    /* KPI Stats Grid */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -187,7 +186,6 @@
     .icon-purple { background: #faf5ff; color: #a855f7; }
     .icon-amber { background: #fffbeb; color: #f59e0b; }
 
-    /* Alert Banners */
     .alert {
         padding: 14px 18px;
         border-radius: 10px;
@@ -217,7 +215,6 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Cards */
     .card {
         background: var(--card-bg);
         border: 1px solid var(--border-color);
@@ -254,7 +251,6 @@
         border-radius: 12px;
     }
 
-    /* Add Product Form */
     .card-body {
         padding: 24px;
     }
@@ -319,7 +315,6 @@
         transform: translateY(-1px);
     }
 
-    /* Table Toolbar */
     .toolbar-search {
         position: relative;
         max-width: 320px;
@@ -350,7 +345,6 @@
         color: var(--secondary);
     }
 
-    /* Table Design */
     .table-responsive {
         overflow-x: auto;
     }
@@ -382,16 +376,8 @@
         vertical-align: middle;
     }
 
-    tbody tr {
-        transition: background 0.15s ease;
-    }
-
     tbody tr:hover {
         background: #f8fafc;
-    }
-
-    tbody tr:last-child td {
-        border-bottom: none;
     }
 
     .col-id {
@@ -420,7 +406,6 @@
         color: #0f172a;
     }
 
-    /* Stock Badge */
     .stock-badge {
         display: inline-flex;
         align-items: center;
@@ -456,20 +441,21 @@
     .supplier-pill {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
         background: #f1f5f9;
-        padding: 3px 8px;
+        border: 1px solid var(--border-color);
+        padding: 4px 10px;
         border-radius: 6px;
         font-size: 12px;
         font-weight: 600;
-        color: #475569;
+        color: #334155;
     }
 
-    /* Action Buttons */
     .actions-cell {
         display: flex;
         align-items: center;
         gap: 8px;
+        justify-content: flex-end;
     }
 
     .btn-edit {
@@ -489,7 +475,6 @@
 
     .btn-edit:hover {
         background: #dbeafe;
-        color: #1d4ed8;
     }
 
     .btn-delete {
@@ -509,18 +494,12 @@
 
     .btn-delete:hover {
         background: #fee2e2;
-        color: #b91c1c;
     }
 
     .empty-state {
         text-align: center;
         padding: 60px 20px;
         color: var(--secondary);
-    }
-
-    .empty-state svg {
-        margin-bottom: 12px;
-        color: #cbd5e1;
     }
 
     @media (max-width: 768px) {
@@ -534,14 +513,13 @@
 
 <div class="container">
 
-    <!-- Top Header Navigation -->
     <div class="top-header">
         <div class="title-area">
             <h1>📦 Manage Products</h1>
             <p>Add, edit, track and manage your inventory catalog</p>
         </div>
         <a href="dashboard.jsp" class="back-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
@@ -593,15 +571,19 @@
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
-            Operation completed successfully! Inventory has been updated.
+            Product operation completed successfully! Inventory has been updated.
+        </div>
+    <% } else if ("delete_failed".equals(error)) { %>
+        <div class="alert alert-danger">
+            ✕ Cannot delete this product because it has recorded transactions in Stock History.
         </div>
     <% } else if ("invalid".equals(error)) { %>
         <div class="alert alert-danger">
-            ⚠️ Invalid input data. Please verify product name, positive price, quantity and supplier ID.
+            ⚠️ Invalid input data. Please verify product name, positive price, quantity and a valid supplier.
         </div>
     <% } else if ("failed".equals(error)) { %>
         <div class="alert alert-danger">
-            ✕ Operation failed. If deleting, make sure no active stock history references this product.
+            ✕ Operation failed. Please ensure a valid supplier is selected.
         </div>
     <% } %>
 
@@ -645,10 +627,27 @@
                                placeholder="0" min="0" required>
                     </div>
 
+                    <!-- Dropdown populated with existing suppliers -->
                     <div class="form-group">
-                        <label for="supplierId">Supplier ID</label>
-                        <input type="number" id="supplierId" name="supplierId" class="form-control"
-                               placeholder="e.g. 1" min="1" required>
+                        <label for="supplierId">Select Supplier</label>
+                        <select id="supplierId" name="supplierId" class="form-control" required>
+                            <option value="">-- Choose Supplier --</option>
+                            <%
+                                if (suppliers != null && !suppliers.isEmpty()) {
+                                    for (Supplier s : suppliers) {
+                            %>
+                            <option value="<%= s.getId() %>">
+                                <%= s.getName() %> (ID: #<%= s.getId() %>)
+                            </option>
+                            <%
+                                    }
+                                } else {
+                            %>
+                            <option value="" disabled>No suppliers registered. Add a supplier first!</option>
+                            <%
+                                }
+                            %>
+                        </select>
                     </div>
 
                     <button type="submit" class="btn-submit">
@@ -671,7 +670,6 @@
                 <span class="badge-count"><%= totalProducts %> items</span>
             </h2>
 
-            <!-- Real-time Live Search Input -->
             <div class="toolbar-search">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -708,12 +706,16 @@
                                     stockClass = "stock-low";
                                     stockText = "Low Stock (" + p.getQuantity() + ")";
                                 }
+
+                                String suppDisplay = (p.getSupplierName() != null && !p.getSupplierName().trim().isEmpty())
+                                    ? p.getSupplierName() + " (ID: #" + p.getSupplierId() + ")"
+                                    : "Supplier #" + p.getSupplierId();
                     %>
                     <tr>
                         <td class="col-id"><%= serialNo++ %></td>
                         <td>
                             <div class="product-title"><%= p.getName() %></div>
-                            <small style="color: var(--text-muted); font-size: 11px;">ID: #<%= p.getId() %></small>
+                            <small style="color: var(--text-muted); font-size: 11px;">Product ID: #<%= p.getId() %></small>
                         </td>
                         <td>
                             <span class="category-badge"><%= p.getCategory() %></span>
@@ -728,10 +730,10 @@
                             </span>
                         </td>
                         <td>
-                            <span class="supplier-pill">🏢 Supplier #<%= p.getSupplierId() %></span>
+                            <span class="supplier-pill">🏢 <%= suppDisplay %></span>
                         </td>
                         <td>
-                            <div class="actions-cell" style="justify-content: flex-end;">
+                            <div class="actions-cell">
                                 <a class="btn-edit" href="products?action=edit&id=<%= p.getId() %>">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -762,10 +764,6 @@
                     <tr>
                         <td colspan="7">
                             <div class="empty-state">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                                </svg>
                                 <h3>No Products in Inventory</h3>
                                 <p style="font-size: 13px; margin-top: 4px;">Use the form above to add your first product.</p>
                             </div>
@@ -781,7 +779,6 @@
 
 </div>
 
-<!-- Client-side Instant Filter Script -->
 <script>
 function filterTable() {
     const input = document.getElementById("tableSearch");
@@ -791,11 +788,7 @@ function filterTable() {
 
     for (let i = 0; i < rows.length; i++) {
         const text = rows[i].textContent || rows[i].innerText;
-        if (text.toLowerCase().indexOf(filter) > -1) {
-            rows[i].style.display = "";
-        } else {
-            rows[i].style.display = "none";
-        }
+        rows[i].style.display = text.toLowerCase().indexOf(filter) > -1 ? "" : "none";
     }
 }
 </script>

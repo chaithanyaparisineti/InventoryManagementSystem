@@ -1,10 +1,9 @@
-
-
 package com.inventory.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,19 +36,24 @@ public class ProductDAO {
                 return ps.executeUpdate() > 0;
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.err.println("Error adding product: " + e.getMessage());
             e.printStackTrace();
         }
 
         return false;
     }
 
-    // 2. Get All Products
+    // 2. Get All Products (with Supplier Name)
     public List<Product> getAllProducts() {
 
         List<Product> products = new ArrayList<>();
 
-        String sql = "SELECT * FROM products";
+        String sql = "SELECT p.id, p.name, p.category, p.price, p.quantity, p.supplier_id, "
+                + "s.name AS supplier_name "
+                + "FROM products p "
+                + "LEFT JOIN suppliers s ON p.supplier_id = s.id "
+                + "ORDER BY p.id ASC";
 
         try (Connection con = DBCconnection.getConnection()) {
 
@@ -70,12 +74,14 @@ public class ProductDAO {
                     product.setPrice(rs.getDouble("price"));
                     product.setQuantity(rs.getInt("quantity"));
                     product.setSupplierId(rs.getInt("supplier_id"));
+                    product.setSupplierName(rs.getString("supplier_name"));
 
                     products.add(product);
                 }
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.err.println("Error fetching products: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -87,7 +93,11 @@ public class ProductDAO {
 
         Product product = null;
 
-        String sql = "SELECT * FROM products WHERE id = ?";
+        String sql = "SELECT p.id, p.name, p.category, p.price, p.quantity, p.supplier_id, "
+                + "s.name AS supplier_name "
+                + "FROM products p "
+                + "LEFT JOIN suppliers s ON p.supplier_id = s.id "
+                + "WHERE p.id = ?";
 
         try (Connection con = DBCconnection.getConnection()) {
 
@@ -111,11 +121,13 @@ public class ProductDAO {
                         product.setPrice(rs.getDouble("price"));
                         product.setQuantity(rs.getInt("quantity"));
                         product.setSupplierId(rs.getInt("supplier_id"));
+                        product.setSupplierName(rs.getString("supplier_name"));
                     }
                 }
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.err.println("Error fetching product by id: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -146,7 +158,8 @@ public class ProductDAO {
                 return ps.executeUpdate() > 0;
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.err.println("Error updating product: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -171,7 +184,8 @@ public class ProductDAO {
                 return ps.executeUpdate() > 0;
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.err.println("Error deleting product: " + e.getMessage());
             e.printStackTrace();
         }
 

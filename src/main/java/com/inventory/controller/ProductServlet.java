@@ -1,11 +1,12 @@
-
 package com.inventory.controller;
 
 import java.io.IOException;
 import java.util.List;
 
 import com.inventory.dao.ProductDAO;
+import com.inventory.dao.SupplierDAO;
 import com.inventory.model.Product;
+import com.inventory.model.Supplier;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,7 +20,8 @@ public class ProductServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private ProductDAO dao = new ProductDAO();
+    private ProductDAO productDAO = new ProductDAO();
+    private SupplierDAO supplierDAO = new SupplierDAO();
 
     // DISPLAY PRODUCTS AND OPEN EDIT PAGE
     @Override
@@ -36,12 +38,16 @@ public class ProductServlet extends HttpServlet {
 
         String action = request.getParameter("action");
 
+        // Always load existing suppliers so dropdowns are available
+        List<Supplier> suppliers = supplierDAO.getAllSuppliers();
+        request.setAttribute("suppliers", suppliers);
+
         if ("edit".equals(action)) {
 
             try {
                 int id = Integer.parseInt(request.getParameter("id"));
 
-                Product product = dao.getProductById(id);
+                Product product = productDAO.getProductById(id);
 
                 if (product == null) {
                     response.sendRedirect("products?error=notfound");
@@ -59,7 +65,7 @@ public class ProductServlet extends HttpServlet {
 
         } else {
 
-            List<Product> products = dao.getAllProducts();
+            List<Product> products = productDAO.getAllProducts();
 
             request.setAttribute("products", products);
 
@@ -119,7 +125,7 @@ public class ProductServlet extends HttpServlet {
 
                 if ("add".equals(action)) {
 
-                    success = dao.addProduct(p);
+                    success = productDAO.addProduct(p);
 
                 } else {
 
@@ -128,7 +134,7 @@ public class ProductServlet extends HttpServlet {
 
                     p.setId(id);
 
-                    success = dao.updateProduct(p);
+                    success = productDAO.updateProduct(p);
                 }
 
                 if (success) {
@@ -142,12 +148,12 @@ public class ProductServlet extends HttpServlet {
                 int id = Integer.parseInt(
                         request.getParameter("id"));
 
-                boolean success = dao.deleteProduct(id);
+                boolean success = productDAO.deleteProduct(id);
 
                 if (success) {
                     response.sendRedirect("products?success=1");
                 } else {
-                    response.sendRedirect("products?error=failed");
+                    response.sendRedirect("products?error=delete_failed");
                 }
 
             } else {

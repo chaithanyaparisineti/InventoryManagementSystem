@@ -1,12 +1,13 @@
 package com.inventory.model;
 
 public class Product {
-	private int id;
+    private int id;
     private String name;
     private String category;
     private double price;
     private int quantity;
     private int supplierId;
+    private String supplierName;
 
     public Product() {
     }
@@ -67,5 +68,13 @@ public class Product {
 
     public void setSupplierId(int supplierId) {
         this.supplierId = supplierId;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 }
